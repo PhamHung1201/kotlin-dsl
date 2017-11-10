@@ -4,8 +4,12 @@ import org.gradle.kotlin.dsl.embeddedKotlinVersion
 import org.gradle.kotlin.dsl.fixtures.AbstractIntegrationTest
 
 import org.hamcrest.CoreMatchers.containsString
+import org.hamcrest.CoreMatchers.equalTo
+import org.hamcrest.CoreMatchers.hasItem
+import org.hamcrest.CoreMatchers.not
 
 import org.junit.Assert.assertThat
+import org.junit.Assume.assumeThat
 import org.junit.Assume.assumeTrue
 import org.junit.Before
 import org.junit.Test
@@ -35,11 +39,21 @@ class SamplesSmokeTest(
 
     @Test
     fun `tasks task succeeds on `() {
+        assumeThat(
+            "Require published `kotlin-dsl` plugin depending on Kotlin 1.2",
+            sampleName,
+            not(equalTo("multi-kotlin-project-with-buildSrc")))
+
         build("tasks")
     }
 
     @Test
     fun `uses the right Kotlin Gradle Plugin version on `() {
+
+        assumeThat(
+            "Require published `kotlin-dsl` plugin depending on Kotlin 1.2",
+            listOf("model-rules", "multi-kotlin-project-with-buildSrc", "multi-project-with-buildSrc", "project-with-buildSrc"),
+            not(hasItem(sampleName)))
 
         val projectPaths = listOf(":") + listSubProjectPaths().map { "$it:" }
         val projectBuilds = projectPaths.map { buildSpec("${it}buildEnvironment") }
