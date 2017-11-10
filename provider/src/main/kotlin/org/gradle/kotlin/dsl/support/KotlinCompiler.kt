@@ -16,6 +16,7 @@
 
 package org.gradle.kotlin.dsl.support
 
+import org.gradle.api.JavaVersion
 import org.jetbrains.kotlin.cli.common.CLIConfigurationKeys
 import org.jetbrains.kotlin.cli.common.messages.CompilerMessageLocation
 import org.jetbrains.kotlin.cli.common.messages.CompilerMessageSeverity
@@ -193,7 +194,9 @@ fun compilerConfigurationFor(messageCollector: MessageCollector, sourceFiles: It
          * See the discussion here:
          * https://youtrack.jetbrains.com/issue/KT-20167
          */
-        put(JVMConfigurationKeys.JDK_HOME, File(System.getProperty("java.home")))
+        if(JavaVersion.current().isJava9Compatible) {
+            put(JVMConfigurationKeys.JDK_HOME, File(System.getProperty("java.home")))
+        }
         put<MessageCollector>(CLIConfigurationKeys.MESSAGE_COLLECTOR_KEY, messageCollector)
     }
 
@@ -242,7 +245,7 @@ fun messageCollectorFor(log: Logger, pathTranslation: (String) -> String = { it 
                 "${severity.presentableName[0]}: ${msg()}"
 
             when (severity) {
-                in CompilerMessageSeverity.ERRORS -> {
+                in errorSeverities -> {
                     errors++
                     log.error { taggedMsg() }
                 }
@@ -259,3 +262,8 @@ fun messageCollectorFor(log: Logger, pathTranslation: (String) -> String = { it 
 internal
 fun compilerMessageFor(path: String, line: Int, column: Int, message: String) =
     "$path:$line:$column: $message"
+
+
+private
+val errorSeverities =
+    listOf(CompilerMessageSeverity.EXCEPTION, CompilerMessageSeverity.ERROR)
