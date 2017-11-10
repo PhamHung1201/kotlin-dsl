@@ -174,14 +174,28 @@ class KotlinBuildScriptModelIntegrationTest : AbstractIntegrationTest() {
 
         assertSourcePathIncludesKotlinStdlibSourcesGiven(
             rootProjectScript = "",
-            subProjectScript = "buildscript { repositories { jcenter() } }")
+            subProjectScript = """
+                buildscript {
+                    repositories {
+                        maven { url = uri("http://dl.bintray.com/kotlin/kotlin-eap-1.2") }
+                        jcenter()
+                    }
+                }
+            """)
     }
 
     @Test
     fun `sourcePath includes kotlin-stdlib sources resolved against project hierarchy`() {
 
         assertSourcePathIncludesKotlinStdlibSourcesGiven(
-            rootProjectScript = "buildscript { repositories { jcenter() } }",
+            rootProjectScript = """
+                buildscript {
+                    repositories {
+                        maven { url = uri("http://dl.bintray.com/kotlin/kotlin-eap-1.2") }
+                        jcenter()
+                    }
+                }
+            """,
             subProjectScript = "")
     }
 
@@ -193,7 +207,10 @@ class KotlinBuildScriptModelIntegrationTest : AbstractIntegrationTest() {
             subProjectScript = """
                 buildscript {
                     dependencies { classpath(embeddedKotlin("gradle-plugin")) }
-                    repositories { jcenter() }
+                    repositories {
+                        maven { url = uri("http://dl.bintray.com/kotlin/kotlin-eap-1.2") }
+                        jcenter()
+                    }
                 }
             """)
     }
@@ -205,7 +222,10 @@ class KotlinBuildScriptModelIntegrationTest : AbstractIntegrationTest() {
             rootProjectScript = """
                 buildscript {
                     dependencies { classpath(embeddedKotlin("gradle-plugin")) }
-                    repositories { jcenter() }
+                    repositories {
+                        maven { url = uri("http://dl.bintray.com/kotlin/kotlin-eap-1.2") }
+                        jcenter()
+                    }
                 }
             """,
             subProjectScript = "")
@@ -286,7 +306,15 @@ class KotlinBuildScriptModelIntegrationTest : AbstractIntegrationTest() {
         matches: Matcher<Iterable<String>>) {
 
         val subProjectName = "sub"
-        withSettings("include(\"$subProjectName\")")
+        withSettings("""
+            pluginManagement {
+                repositories {
+                    maven { url = uri("http://dl.bintray.com/kotlin/kotlin-eap-1.2") }
+                    gradlePluginPortal()
+                }
+            }
+            include("$subProjectName")
+        """)
 
         withBuildScript(rootProjectScript)
         val subProjectScriptFile = withBuildScriptIn(subProjectName, subProjectScript)

@@ -9,6 +9,7 @@ group = "org.gradle.sample"
 version = "1.0.0"
 
 repositories {
+    maven { url = uri("http://dl.bintray.com/kotlin/kotlin-eap-1.2") }
     jcenter()
 }
 
